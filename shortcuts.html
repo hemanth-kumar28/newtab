@@ -30,9 +30,7 @@
             align-items: center;
             justify-content: center;
             overflow-x: hidden;
-            /* prevent horizontal scroll */
             overflow-y: hidden;
-            /* optional: keep original overflow:hidden */
             letter-spacing: 0.6px;
         }
 
@@ -405,7 +403,7 @@
 
         function nextPage() { if ((page + 1) * 12 < links.length) { page++; renderLinks('next'); } }
         function prevPage() { if (page > 0) { page--; renderLinks('prev'); } }
-        // --- COOKIE HELPERS ---
+    
         function setCookie(name, value, days) {
             const d = new Date();
             d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -420,14 +418,14 @@
             return '';
         }
 
-        // --- BACKGROUND IMAGE MANAGEMENT ---
+     
         let bgHistory = JSON.parse(getCookie('bgHistory') || '[]');
 
         function saveBgHistory(url) {
-            bgHistory = bgHistory.filter(u => u !== url); // remove duplicates
-            bgHistory.unshift(url); // add to front
-            if (bgHistory.length > 10) bgHistory.pop(); // keep last 10
-            setCookie('bgHistory', JSON.stringify(bgHistory), 30); // 30 days
+            bgHistory = bgHistory.filter(u => u !== url); 
+            bgHistory.unshift(url);
+            if (bgHistory.length > 10) bgHistory.pop();
+            setCookie('bgHistory', JSON.stringify(bgHistory), 30); 
             updateBgDropdown();
         }
 
@@ -437,7 +435,7 @@
             bgHistory.forEach(url => {
                 const opt = document.createElement('option');
                 opt.value = url;
-                opt.textContent = url.split('/').pop(); // short label
+                opt.textContent = url.split('/').pop(); 
                 select.appendChild(opt);
             });
         }
@@ -446,8 +444,8 @@
             let url = document.getElementById('bgInput').value.trim();
             if (!url) return;
             document.documentElement.style.setProperty('--bg-image', `url('${url}')`);
-            saveBgHistory(url);                       // store in history
-            setCookie('lastBg', url, 30);            // save last set background
+            saveBgHistory(url);                      
+            setCookie('lastBg', url, 30);           
             document.getElementById('bgInput').value = '';
         }
 
@@ -455,12 +453,12 @@
             const url = document.getElementById('bgSelect').value;
             if (!url) return;
             document.documentElement.style.setProperty('--bg-image', `url('${url}')`);
-            setCookie('lastBg', url, 30);            // also update last set background
+            setCookie('lastBg', url, 30);           
         }
 
 
         updateBgDropdown();
-        // On page load, restore last background
+        
         const lastBg = getCookie('lastBg');
         if (lastBg) {
             document.documentElement.style.setProperty('--bg-image', `url('${lastBg}')`);

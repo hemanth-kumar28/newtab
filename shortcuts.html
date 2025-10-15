@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AMOLED Lavender Link Dashboard</title>
+    <style>
+        :root {
+            --lav-1: #b57edc;
+            --lav-2: #d9c7f2;
+            --glass: rgba(255, 255, 255, 0.08);
+            --bg-fallback: #000000;
+            --bg-image: url('https://w.wallhaven.cc/full/3z/wallhaven-3zv6vv.png');
+        }
+
+        html,
+        body {
+            width: 100%;
+            /* full width */
+            height: 100%;
+            /* full height */
+            margin: 0;
+            padding: 0;
+            background: var(--bg-fallback) var(--bg-image) center center / cover no-repeat fixed;
+            color: var(--lav-2);
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            /* prevent horizontal scroll */
+            overflow-y: hidden;
+            /* optional: keep original overflow:hidden */
+            letter-spacing: 0.6px;
+        }
+
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            z-index: -1;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            row-gap: 20px;
+            column-gap: 20px;
+            justify-items: center;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 0.45s cubic-bezier(.2, .9, .2, 1), transform 0.45s cubic-bezier(.2, .9, .2, 1);
+            /* width: min(1080px, 92%); */
+        }
+
+        .grid.fade-out {
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+
+        .grid.fade-in {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tile {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            row-gap: 20px;
+            column-gap: 20px;
+            position: relative;
+            transition: transform .18s ease, background .18s ease;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .tile:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(181, 126, 220, 0.12);
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block
+        }
+
+        .label {
+            font-size: 13px;
+            color: var(--lav-2);
+            text-align: center;
+            margin-top: 4px;
+        }
+
+        .countBadge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(181, 126, 220, 0.22);
+            color: var(--lav-1);
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 12px;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 6px;
+        }
+
+        .nav button {
+            background: rgba(181, 126, 220, 0.08);
+            border: 1px solid rgba(181, 126, 220, 0.18);
+            color: var(--lav-1);
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+            backdrop-filter: blur(6px);
+        }
+
+        .nav button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(181, 126, 220, 0.08);
+            background: rgba(181, 126, 220, 0.16);
+        }
+
+        .nav button:active {
+            transform: translateY(-2px) scale(.98);
+        }
+
+        .menu {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 14px;
+            border-radius: 10px;
+            transition: transform .18s ease, background .18s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu:active {
+            transform: scale(.92) rotate(12deg);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--lav-2);
+            padding: 10px 12px;
+            border-radius: 10px;
+            outline: none;
+            backdrop-filter: blur(6px);
+            min-width: 260px;
+        }
+
+        .btn {
+            background: rgba(181, 126, 220, 0.12);
+            color: var(--lav-1);
+            border: 1px solid rgba(181, 126, 220, 0.22);
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform .12s ease, background .12s ease;
+            backdrop-filter: blur(6px);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            background: rgba(181, 126, 220, 0.2);
+        }
+
+        .edit-layer {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .edit-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 18px;
+            width: 340px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .bg-controls {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .bg-controls input,
+        .bg-controls select {
+            min-width: 220px;
+            background: rgba(181, 126, 220, 0.08);
+            border: 1px solid rgba(181, 126, 220, 0.18);
+            color: var(--lav-1);
+            padding: 10px 12px;
+            border-radius: 10px;
+            outline: none;
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+            transition: transform .12s ease, background .12s ease;
+        }
+
+        .bg-controls select:hover {
+            background: rgba(181, 126, 220, 0.16);
+        }
+
+        .bg-controls select:active {
+            transform: scale(0.98);
+        }
+
+
+
+        @media (max-width:900px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width:520px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(6, 1fr);
+            }
+
+            input {
+                min-width: 160px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        
+        <div id="grid" class="grid" aria-live="polite"></div>
+        <div class="nav">
+            <button onclick="prevPage()">⬅ Prev</button>
+            <button onclick="nextPage()">Next ➡</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="bg-controls">
+            <input id="bgInput" type="text" placeholder="Enter background image URL" aria-label="background image">
+            <button class="btn" onclick="setBackground()">Set Background</button>
+            <select id="bgSelect" onchange="selectBackground()">
+                <option value="">Recent Backgrounds</option>
+            </select>
+        </div>
+
+        <input id="urlInput" type="text" placeholder="Enter website (e.g. youtube.com)" aria-label="website" />
+        <button class="btn" onclick="addLink()">Add</button>
+    </div>
+
+    <div id="editLayer" class="edit-layer" role="dialog" aria-modal="true">
+        <div class="edit-box">
+            <h3 style="text-align:center;margin-top:0;color:var(--lav-1)">Edit Shortcut</h3>
+            <input id="editName" placeholder="Name" aria-label="edit name" />
+            <input id="editUrl" placeholder="URL" aria-label="edit url" />
+            <div style="display:flex;justify-content:space-between;margin-top:8px;">
+                <button class="btn" onclick="saveEdit()">Save</button>
+                <button class="btn" onclick="deleteEdit()">Delete</button>
+                <button class="btn" onclick="closeEdit()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let links = JSON.parse(localStorage.getItem('links') || '[]');
+        let page = 0;
+        let editIndex = null;
+
+        function saveLinks() { localStorage.setItem('links', JSON.stringify(links)); }
+        function ensureHTTPS(url) { if (!/^https?:\/\//i.test(url)) return 'https://' + url; return url; }
+        function extractNameFromURL(url) { try { const u = new URL(ensureHTTPS(url)); return u.hostname.replace(/^www\./, '').split('.')[0]; } catch { return url; } }
+        function faviconFor(url) { try { const u = new URL(url); return `https://www.google.com/s2/favicons?sz=128&domain=${u.hostname}`; } catch { return ''; } }
+
+        function renderLinks(dir) {
+            const grid = document.getElementById('grid');
+            grid.classList.remove('fade-in', 'fade-out');
+            grid.classList.add('fade-out');
+            setTimeout(() => {
+                grid.innerHTML = '';
+                const start = page * 12;
+                const visible = links.slice(start, start + 12);
+                visible.forEach((link, i) => {
+                    const tile = document.createElement('div'); tile.className = 'tile';
+
+                    const badge = document.createElement('div'); badge.className = 'countBadge'; badge.textContent = link.clicks || 0; tile.appendChild(badge);
+
+                    const iconWrap = document.createElement('div'); iconWrap.className = 'icon';
+                    const img = document.createElement('img');
+                    img.src = faviconFor(link.url);
+                    img.onerror = () => { img.src = 'https://www.google.com/s2/favicons?sz=128&domain=' + extractNameFromURL(link.url) };
+                    iconWrap.appendChild(img); tile.appendChild(iconWrap);
+
+                    const label = document.createElement('div'); label.className = 'label'; label.textContent = link.name || extractNameFromURL(link.url); tile.appendChild(label);
+
+                    const menu = document.createElement('div'); menu.className = 'menu'; menu.setAttribute('role', 'button'); menu.setAttribute('aria-label', 'options'); menu.innerHTML = '⋮';
+                    menu.addEventListener('click', (e) => { e.stopPropagation(); menu.animate([{ transform: 'scale(1)' }, { transform: 'scale(.92) rotate(12deg)' }, { transform: 'scale(1)' }], { duration: 220 }); openEditDialog(start + i); });
+                    tile.appendChild(menu);
+
+                    tile.addEventListener('click', () => openLink(start + i));
+                    grid.appendChild(tile);
+                });
+                grid.classList.remove('fade-out');
+                grid.classList.add('fade-in');
+            }, 260);
+        }
+
+        function addLink() {
+            let url = document.getElementById('urlInput').value.trim();
+            if (!url) return;
+            url = ensureHTTPS(url);
+            try { new URL(url); } catch { return; }
+            const name = extractNameFromURL(url);
+            links.push({ name, url, clicks: 0 }); saveLinks(); renderLinks(); document.getElementById('urlInput').value = '';
+        }
+
+        function openLink(i) { links[i].clicks = (links[i].clicks || 0) + 1; saveLinks(); renderLinks(); window.open(links[i].url, '_blank'); }
+
+        function openEditDialog(index) { editIndex = index; const layer = document.getElementById('editLayer'); document.getElementById('editName').value = links[index].name; document.getElementById('editUrl').value = links[index].url; layer.style.display = 'flex'; }
+
+        function saveEdit() { const name = document.getElementById('editName').value.trim(); const url = ensureHTTPS(document.getElementById('editUrl').value.trim()); if (!name || !url) return; try { new URL(url); } catch { return; } links[editIndex].name = name; links[editIndex].url = url; saveLinks(); closeEdit(); renderLinks(); }
+
+        function deleteEdit() { if (editIndex !== null) { links.splice(editIndex, 1); saveLinks(); closeEdit(); renderLinks(); } }
+
+        function closeEdit() { document.getElementById('editLayer').style.display = 'none'; }
+
+        function nextPage() { if ((page + 1) * 12 < links.length) { page++; renderLinks('next'); } }
+        function prevPage() { if (page > 0) { page--; renderLinks('prev'); } }
+        // --- COOKIE HELPERS ---
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = name + "=" + encodeURIComponent(value) + ";path=/;expires=" + d.toUTCString();
+        }
+
+        function getCookie(name) {
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            for (let c of cookies) {
+                if (c.startsWith(name + '=')) return decodeURIComponent(c.split('=')[1]);
+            }
+            return '';
+        }
+
+        // --- BACKGROUND IMAGE MANAGEMENT ---
+        let bgHistory = JSON.parse(getCookie('bgHistory') || '[]');
+
+        function saveBgHistory(url) {
+            bgHistory = bgHistory.filter(u => u !== url); // remove duplicates
+            bgHistory.unshift(url); // add to front
+            if (bgHistory.length > 10) bgHistory.pop(); // keep last 10
+            setCookie('bgHistory', JSON.stringify(bgHistory), 30); // 30 days
+            updateBgDropdown();
+        }
+
+        function updateBgDropdown() {
+            const select = document.getElementById('bgSelect');
+            select.innerHTML = '<option value="">Recent Backgrounds</option>';
+            bgHistory.forEach(url => {
+                const opt = document.createElement('option');
+                opt.value = url;
+                opt.textContent = url.split('/').pop(); // short label
+                select.appendChild(opt);
+            });
+        }
+
+        function setBackground() {
+            let url = document.getElementById('bgInput').value.trim();
+            if (!url) return;
+            document.documentElement.style.setProperty('--bg-image', `url('${url}')`);
+            saveBgHistory(url);                       // store in history
+            setCookie('lastBg', url, 30);            // save last set background
+            document.getElementById('bgInput').value = '';
+        }
+
+        function selectBackground() {
+            const url = document.getElementById('bgSelect').value;
+            if (!url) return;
+            document.documentElement.style.setProperty('--bg-image', `url('${url}')`);
+            setCookie('lastBg', url, 30);            // also update last set background
+        }
+
+
+        updateBgDropdown();
+        // On page load, restore last background
+        const lastBg = getCookie('lastBg');
+        if (lastBg) {
+            document.documentElement.style.setProperty('--bg-image', `url('${lastBg}')`);
+        }
+
+        renderLinks();
+    </script>
+</body>
+
+</html>

@@ -305,7 +305,7 @@
 
 <body>
     <div class="dashboard">
-        
+
         <div id="grid" class="grid" aria-live="polite"></div>
         <div class="nav">
             <button onclick="prevPage()">⬅ Prev</button>
@@ -403,7 +403,7 @@
 
         function nextPage() { if ((page + 1) * 12 < links.length) { page++; renderLinks('next'); } }
         function prevPage() { if (page > 0) { page--; renderLinks('prev'); } }
-    
+
         function setCookie(name, value, days) {
             const d = new Date();
             d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -418,14 +418,14 @@
             return '';
         }
 
-     
+
         let bgHistory = JSON.parse(getCookie('bgHistory') || '[]');
 
         function saveBgHistory(url) {
-            bgHistory = bgHistory.filter(u => u !== url); 
+            bgHistory = bgHistory.filter(u => u !== url);
             bgHistory.unshift(url);
             if (bgHistory.length > 10) bgHistory.pop();
-            setCookie('bgHistory', JSON.stringify(bgHistory), 30); 
+            setCookie('bgHistory', JSON.stringify(bgHistory), 30);
             updateBgDropdown();
         }
 
@@ -435,7 +435,7 @@
             bgHistory.forEach(url => {
                 const opt = document.createElement('option');
                 opt.value = url;
-                opt.textContent = url.split('/').pop(); 
+                opt.textContent = url.split('/').pop();
                 select.appendChild(opt);
             });
         }
@@ -444,8 +444,8 @@
             let url = document.getElementById('bgInput').value.trim();
             if (!url) return;
             document.documentElement.style.setProperty('--bg-image', `url('${url}')`);
-            saveBgHistory(url);                      
-            setCookie('lastBg', url, 30);           
+            saveBgHistory(url);
+            setCookie('lastBg', url, 30);
             document.getElementById('bgInput').value = '';
         }
 
@@ -453,18 +453,38 @@
             const url = document.getElementById('bgSelect').value;
             if (!url) return;
             document.documentElement.style.setProperty('--bg-image', `url('${url}')`);
-            setCookie('lastBg', url, 30);           
+            setCookie('lastBg', url, 30);
         }
 
 
         updateBgDropdown();
-        
+
         const lastBg = getCookie('lastBg');
         if (lastBg) {
             document.documentElement.style.setProperty('--bg-image', `url('${lastBg}')`);
         }
 
         renderLinks();
+        // --- Add these lines near the end of your <script> block ---
+
+        // Trigger addLink() when Enter is pressed in the website input
+        document.getElementById('urlInput')
+            .addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();       // stop any default form behavior
+                    addLink();                // call existing function
+                }
+            });
+
+        // Trigger setBackground() when Enter is pressed in the background input
+        document.getElementById('bgInput')
+            .addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    setBackground();
+                }
+            });
+
     </script>
 </body>
 
